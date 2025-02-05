@@ -366,7 +366,7 @@ class VitsModel(TextToWaveform):
             text_tokenizer=self.tokenizer,
         )
 
-        print(f"{**self.cfg.train_ds.batch_sampler}")
+        print(f"{self.cfg.train_ds.batch_sampler}")
 
         train_sampler = DistributedBucketSampler(dataset, **self.cfg.train_ds.batch_sampler)
 
