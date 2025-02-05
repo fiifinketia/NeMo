@@ -254,7 +254,7 @@ class TTSDataset(Dataset):
 
                     data.append(file_info)
                     # Calculating length of spectrogram from input audio for batch sampling
-                    self.lengths.append(os.path.getsize(item["audio_filepath"]) // ((n_fft // 2)*100))
+                    self.lengths.append(os.path.getsize(item["audio_filepath"]) // (n_fft // 2))
 
                     if file_info["duration"] is None:
                         # logging.info(
