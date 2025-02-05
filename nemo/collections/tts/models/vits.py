@@ -366,6 +366,8 @@ class VitsModel(TextToWaveform):
             text_tokenizer=self.tokenizer,
         )
 
+        print(**self.cfg.train_ds.batch_sampler)
+
         train_sampler = DistributedBucketSampler(dataset, **self.cfg.train_ds.batch_sampler)
 
         dataloader = torch.utils.data.DataLoader(
