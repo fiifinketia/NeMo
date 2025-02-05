@@ -1544,33 +1544,25 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
         super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
         self.lengths = dataset.lengths
         self.batch_size = batch_size
-        self.boundaries = [32,300,500,1000,1100, 1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,3000]
+        self.boundaries = [1000,1100, 1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,3000]
 
         self.buckets, self.num_samples_per_bucket = self._create_buckets()
-        print(self.num_samples_per_bucket)
+        print(f"self.buckets -> {self.buckets}")
         self.total_size = sum(self.num_samples_per_bucket)
         self.num_samples = self.total_size // self.num_replicas
 
     def _create_buckets(self):
         buckets = [[] for _ in range(len(self.boundaries) - 1)]
-        appended = 0
-        popped = 0
         for i in range(len(self.lengths)):
             length = self.lengths[i]
-            print(length)
             idx_bucket = self._bisect(length)
             if idx_bucket != -1:
                 buckets[idx_bucket].append(i)
-                appended+=1
 
         for i in range(len(buckets) - 1, 0, -1):
             if len(buckets[i]) == 0:
                 buckets.pop(i)
                 self.boundaries.pop(i + 1)
-                popped-=1
-
-        print(f"appended -> {appended}")
-        print(f"popped -> {popped}")
 
         num_samples_per_bucket = []
         total_batch_size = self.num_replicas * self.batch_size
@@ -1601,6 +1593,7 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
 
             # add extra samples to make it evenly divisible
             rem = num_samples_bucket - len_bucket
+            print(len_bucket)
             ids_bucket = ids_bucket + ids_bucket * (rem // len_bucket) + ids_bucket[: (rem % len_bucket)]
 
             # subsample
