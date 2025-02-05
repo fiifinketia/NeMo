@@ -1547,22 +1547,32 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
         self.boundaries = boundaries
 
         self.buckets, self.num_samples_per_bucket = self._create_buckets()
-        print(self.buckets)
+        print(self.num_samples_per_bucket)
         self.total_size = sum(self.num_samples_per_bucket)
         self.num_samples = self.total_size // self.num_replicas
 
     def _create_buckets(self):
+        print(f"self.boundaries: {self.boundaries} -> len(self.boundaries): {len(self.boundaries)}")
         buckets = [[] for _ in range(len(self.boundaries) - 1)]
+        print(f"buckets -> {buckets}")
+        print(f"lengths -> {len(self.lengths)}")
+        appended = 0
+        popped = 0
         for i in range(len(self.lengths)):
             length = self.lengths[i]
             idx_bucket = self._bisect(length)
             if idx_bucket != -1:
                 buckets[idx_bucket].append(i)
+                appended+=1
 
         for i in range(len(buckets) - 1, 0, -1):
             if len(buckets[i]) == 0:
                 buckets.pop(i)
                 self.boundaries.pop(i + 1)
+                popped-=1
+
+        print(f"appended -> {appended}")
+        print(f"popped -> {popped}")
 
         num_samples_per_bucket = []
         total_batch_size = self.num_replicas * self.batch_size
