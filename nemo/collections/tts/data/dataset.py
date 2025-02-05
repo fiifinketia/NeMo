@@ -1544,7 +1544,7 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
         super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle)
         self.lengths = dataset.lengths
         self.batch_size = batch_size
-        self.boundaries = boundaries
+        self.boundaries = [32,300,500,1000,1100, 1200,1300,1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,3000]
 
         self.buckets, self.num_samples_per_bucket = self._create_buckets()
         print(self.num_samples_per_bucket)
