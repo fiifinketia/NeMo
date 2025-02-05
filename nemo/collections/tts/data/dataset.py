@@ -254,7 +254,7 @@ class TTSDataset(Dataset):
 
                     data.append(file_info)
                     # Calculating length of spectrogram from input audio for batch sampling
-                    self.lengths.append(os.path.getsize(item["audio_filepath"]) // (n_fft // 2))
+                    self.lengths.append(os.path.getsize(item["audio_filepath"]) // ((n_fft // 2)*100))
 
                     if file_info["duration"] is None:
                         # logging.info(
@@ -1552,14 +1552,12 @@ class DistributedBucketSampler(torch.utils.data.distributed.DistributedSampler):
         self.num_samples = self.total_size // self.num_replicas
 
     def _create_buckets(self):
-        print(f"self.boundaries: {self.boundaries} -> len(self.boundaries): {len(self.boundaries)}")
         buckets = [[] for _ in range(len(self.boundaries) - 1)]
-        print(f"buckets -> {buckets}")
-        print(f"lengths -> {len(self.lengths)}")
         appended = 0
         popped = 0
         for i in range(len(self.lengths)):
             length = self.lengths[i]
+            print(length)
             idx_bucket = self._bisect(length)
             if idx_bucket != -1:
                 buckets[idx_bucket].append(i)
