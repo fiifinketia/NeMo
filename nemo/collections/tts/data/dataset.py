@@ -257,9 +257,9 @@ class TTSDataset(Dataset):
                     self.lengths.append(os.path.getsize(item["audio_filepath"]) // (n_fft // 2))
 
                     if file_info["duration"] is None:
-                        logging.info(
-                            "Not all audio files have duration information. Duration logging will be disabled."
-                        )
+                        # logging.info(
+                        #     "Not all audio files have duration information. Duration logging will be disabled."
+                        # )
                         total_duration = None
 
                     if total_duration is not None:
