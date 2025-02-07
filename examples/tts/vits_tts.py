@@ -7,7 +7,6 @@ import json
 
 # Use wandb-core
 wandb.require("core")
-from wandb.integration.keras import WandbMetricsLogger, WandbModelCheckpoint
 
 # BaseDatasetConfig: defines name, formatter and path of the dataset.
 from TTS.tts.configs.shared_configs import BaseDatasetConfig
@@ -115,18 +114,15 @@ train_samples, eval_samples = load_tts_samples(
 )
 
 model = Vits(config, ap, tokenizer, speaker_manager=None)
-
+wandb.tensorboard.patch(root_logdir=output_path)
 wandb.init(
     project="train-vits",
     
 )
-wandb_callbacks = [
-    WandbMetricsLogger(),
-    WandbModelCheckpoint(filepath="my_model_{epoch:02d}"),
-]
+
 
 trainer = Trainer(
-    TrainerArgs(), config, output_path, model=model, train_samples=train_samples, eval_samples=eval_samples, callbacks=wandb_callbacks
+    TrainerArgs(), config, output_path, model=model, train_samples=train_samples, eval_samples=eval_samples
 )
 
 
