@@ -1,9 +1,12 @@
 import os
 import pandas as pd
+# Log in to your W&B account
 import wandb
 from tqdm import tqdm
 import json
 
+# Use wandb-core
+wandb.require("core")
 from wandb.keras import WandbMetricsLogger, WandbModelCheckpoint
 
 # BaseDatasetConfig: defines name, formatter and path of the dataset.
@@ -22,9 +25,7 @@ from pathlib import Path
 
 
 # use temp_dir, and when done:
-mount_path = "ugspeech"  # or a location like "my-bucket/path/to/mount"
-local_path = f"/content/gs/{mount_path}/audios"
-output_path = "/content/drive/gdrive/MyDrive/ugspeech/tts_train_dir"
+output_path = "/kaggle/working/tts_train_dir"
 if not os.path.exists(output_path):
     os.makedirs(output_path)
 
@@ -36,19 +37,16 @@ dataset_config = BaseDatasetConfig(
     meta_file_val="test.json",
     language="gh_ak",
 )
-wav_dir = "https://storage.googleapis.com/ugspeech/audios"
 
 def formatter(root_path, meta_file, **kwargs):  # pylint: disable=unused-argument
     items = []
-    root_path = local_path
-    df= pd.read_excel(meta_file)
     with open(Path(meta_file).expanduser(), 'r') as f:
         for line in tqdm(f):
             item = json.loads(line)
             file_info = {
                 "audio_file": item["audio_filepath"],
                 "text": item["text"],
-                "root_path": root_path,
+                "root_path": "",
                 "duration": item["duration"] if "duration" in item else None,
                 "speaker_name": str(item["speaker"]) if "speaker" in item else None,
             }
@@ -66,12 +64,10 @@ audio_config = VitsAudioConfig(
 )
 # VitsConfig: all model related values for training, validating and testing.
 config = VitsConfig(
-    audio=audio_config,
-    run_name="vits_gh_ak",
-    batch_size=24,
-    eval_batch_size=24,
-    batch_group_size=0,
-    num_loader_workers=0,
+    batch_size=80,
+    eval_batch_size=32,
+    batch_group_size=5,
+    num_loader_workers=8,
     num_eval_loader_workers=4,
     text_cleaner= "multilingual_cleaners",
     run_eval=True,
@@ -115,9 +111,6 @@ ap = AudioProcessor.init_from_config(config)
 tokenizer, config = TTSTokenizer.init_from_config(config)
 train_samples, eval_samples = load_tts_samples(
     dataset_config,
-    eval_split=True,
-    eval_split_max_size=config.eval_split_max_size,
-    eval_split_size=config.eval_split_size,
     formatter=formatter
 )
 
