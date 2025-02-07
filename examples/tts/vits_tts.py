@@ -7,7 +7,7 @@ import json
 
 # Use wandb-core
 wandb.require("core")
-from wandb.keras import WandbMetricsLogger, WandbModelCheckpoint
+from wandb.integration.keras import WandbMetricsLogger, WandbModelCheckpoint
 
 # BaseDatasetConfig: defines name, formatter and path of the dataset.
 from TTS.tts.configs.shared_configs import BaseDatasetConfig
@@ -64,7 +64,7 @@ audio_config = VitsAudioConfig(
 )
 # VitsConfig: all model related values for training, validating and testing.
 config = VitsConfig(
-    batch_size=80,
+    batch_size=16,
     eval_batch_size=32,
     batch_group_size=5,
     num_loader_workers=8,
