@@ -4,6 +4,8 @@ import pandas as pd
 import wandb
 from tqdm import tqdm
 import json
+import transformers as hf
+
 
 # Use wandb-core
 wandb.require("core")
@@ -64,14 +66,16 @@ audio_config = VitsAudioConfig(
 # VitsConfig: all model related values for training, validating and testing.
 config = VitsConfig(
     batch_size=16,
-    eval_batch_size=32,
+    eval_batch_size=16,
     batch_group_size=5,
     num_loader_workers=8,
     num_eval_loader_workers=4,
     text_cleaner= "multilingual_cleaners",
     run_eval=True,
     test_delay_epochs=-1,
-    epochs=1000,
+    epochs=200,
+    save_n_checkpoints=5,
+    save_best_after=100,
     characters=CharactersConfig(
         characters_class="TTS.tts.models.vits.VitsCharacters",
         pad="_",
@@ -89,7 +93,7 @@ config = VitsConfig(
     # phoneme_language="de",
     # phoneme_cache_path=os.path.join(output_path, "phoneme_cache"),
     compute_input_seq_cache=True,
-    print_step=25,
+    print_step=100,
     print_eval=True,
     mixed_precision=True,
     test_sentences=[
@@ -125,8 +129,18 @@ trainer = Trainer(
     TrainerArgs(), config, output_path, model=model, train_samples=train_samples, eval_samples=eval_samples
 )
 
-
 trainer.fit()
+
+
+huggingfaces_args = hf.TrainingArguments(output_dir=output_path, push_to_hub=True)
+huggingfaces = hf.Trainer(
+    model=model,
+    args=huggingfaces_args,
+)
+
+# Save the trained model
+huggingfaces.push_to_hub()
+# trainer.push
 
 # temp_dir.cleanup()
 wandb.finish()
