@@ -34,8 +34,8 @@ dataset_config = BaseDatasetConfig(
         formatter="ugspeech",
     dataset_name="ugspeech",
     path="/raid/datasets/LJSpeech-1.1_24khz/",
-    meta_file_train="train.json",
-    meta_file_val="test.json",
+    meta_file_train="/kaggle/working/data/json/train.json",
+    meta_file_val="/kaggle/working/data/json/val.json",
     language="gh_ak",
 )
 
@@ -73,7 +73,7 @@ config = VitsConfig(
     text_cleaner= "multilingual_cleaners",
     run_eval=True,
     test_delay_epochs=-1,
-    epochs=200,
+    epochs=500,
     save_n_checkpoints=5,
     save_best_after=100,
     characters=CharactersConfig(
