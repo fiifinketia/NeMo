@@ -34,8 +34,8 @@ dataset_config = BaseDatasetConfig(
         formatter="ugspeech",
     dataset_name="ugspeech",
     path="/raid/datasets/LJSpeech-1.1_24khz/",
-    meta_file_train="/kaggle/working/data/json/train.json",
-    meta_file_val="/kaggle/working/data/json/val.json",
+    meta_file_train="/kaggle/input/micky-speech-data/train.json",
+    meta_file_val="/kaggle/input/micky-speech-data/val.json",
     language="gh_ak",
 )
 
