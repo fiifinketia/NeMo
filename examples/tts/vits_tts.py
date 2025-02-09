@@ -7,8 +7,6 @@ import json
 import transformers as hf
 
 
-# Use wandb-core
-wandb.require("core")
 
 # BaseDatasetConfig: defines name, formatter and path of the dataset.
 from TTS.tts.configs.shared_configs import BaseDatasetConfig
@@ -41,18 +39,20 @@ dataset_config = BaseDatasetConfig(
 
 def formatter(root_path, meta_file, **kwargs):  # pylint: disable=unused-argument
     items = []
-    with open(Path(meta_file).expanduser(), 'r') as f:
-        for line in tqdm(f):
-            item = json.loads(line)
-            file_info = {
-                "audio_file": item["audio_filepath"],
-                "text": item["text"],
-                "root_path": "",
-                "duration": item["duration"] if "duration" in item else None,
-                "speaker_name": str(item["speaker"]) if "speaker" in item else None,
-            }
-    
-            items.append(file_info)
+    # Read and parse the entire JSON file
+    with open(Path(meta_file).expanduser(), 'r', encoding="utf-8") as f:
+        data = json.load(f)  # Load full JSON at once
+
+    # Iterate through JSON list
+    for item in tqdm(data):
+        file_info = {
+            "audio_file": item["audio_filepath"],
+            "text": item["text"],
+            "root_path": "",
+            "duration": item.get("duration"),  # Use .get() to avoid KeyError
+            "speaker_name": str(item.get("speaker"))  # Use .get() to handle missing keys
+        }
+        items.append(file_info)
     return items
 
 audio_config = VitsAudioConfig(
